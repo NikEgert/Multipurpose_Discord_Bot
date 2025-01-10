@@ -4,6 +4,8 @@ pipeline {
     environment {
         MY_SECRET_CREDENTIAL = credentials('TOKEN')
     }
+
+    stages {
         stage('deploy') {
             steps {
                 script {
