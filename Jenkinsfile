@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // This makes the Jenkins secret available as an environment variable
         MY_SECRET_CREDENTIAL = credentials('TOKEN')
     }
 
@@ -10,9 +9,11 @@ pipeline {
         stage('build') {
             steps {
                 script {
-                    // Install dependencies if requirements.txt is present
+                    // Install dependencies from requirements.txt if available
                     if (fileExists('requirements.txt')) {
-                        sh "bash -c 'pip install -r requirements.txt'"
+                        sh "pip install -r requirements.txt"
+                    } else {
+                        echo "No requirements.txt file found"
                     }
                 }
             }
@@ -22,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Run the Python script with the secret as an argument
-                    sh "bash -c 'python3 bot.py ${MY_SECRET_CREDENTIAL}'"
+                    sh "python3 bot.py ${MY_SECRET_CREDENTIAL}"
                 }
             }
         }
