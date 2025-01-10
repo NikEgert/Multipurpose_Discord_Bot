@@ -9,9 +9,12 @@ pipeline {
         stage('build') {
             steps {
                 script {
-                    // Install dependencies from requirements.txt if available
+                    // Debug step to print the PATH
+                    sh "echo $PATH"
+                    
+                    // Install dependencies
                     if (fileExists('requirements.txt')) {
-                        sh "pip install -r requirements.txt"
+                        sh "python3 -m pip install -r requirements.txt"
                     } else {
                         echo "No requirements.txt file found"
                     }
