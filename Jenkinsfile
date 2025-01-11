@@ -23,12 +23,10 @@ pipeline {
         stage('Install Requirements') {
             steps {
                 script {
-                    // Install dependencies inside the virtual environment
                     sh '''
                     #!/bin/bash
-                    source ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
+                    ${VENV_DIR}/bin/pip install --upgrade pip
+                    ${VENV_DIR}/bin/pip install -r requirements.txt
                     '''
                 }
             }
@@ -36,11 +34,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Run bot script with the token as an argument
                     sh '''
                     #!/bin/bash
-                    source ${VENV_DIR}/bin/activate
-                    python3 bot.py ${BOT_TOKEN}
+                    ${VENV_DIR}/bin/python3 bot.py ${BOT_TOKEN}
                     '''
                 }
             }
