@@ -48,6 +48,9 @@ async def on_message_delete(message):
     stripped_message = message.content.replace("`", "")
     await message.channel.send(ping_author(message) + " just had a message deleted! Previous Message: ```"+stripped_message+"```")
  
+def play_music(music):
+    print(f"playing {music}")
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -57,9 +60,15 @@ async def on_message(message):
         if message.author.voice:
             channel = message.author.voice.channel
             # Connect the bot to the channel
-            await channel.connect()
-            await message.channel.send(f"Joined {channel.name}!")
-            await message.channel.send(f"In guild {channel.guild}")
+            # await channel.connect()
+            # await message.channel.send(f"Joined {channel.name}!")
+            # await message.channel.send(f"In guild {channel.guild}")
+            music = message.content[5:]
+            if len(music) > 0:
+                await message.channel.send(f"playing {music}")
+                await play_music(music)
+            else:
+                await message.channel.send(f"give me some music cuh")
         else:
             await message.channel.send("You need to be in a voice channel for me to join.")
 
