@@ -10,26 +10,30 @@ client = discord.Client(intents=intents)
 def ping_author(message):
     return "<@"+str(message.author.id)+">"
 
+async def on_message_voice(message):
+    if message.author == client.user:
+        return
+    if message.content.startswith('$play'):
+        if message.author.voice:
+            channel = message.author.voice.channel
+            # Connect the bot to the channel
+            await channel.connect()
+            await message.channel.send(f"Joined {channel.name}!")
+            await message.channel.send(f"In guild {channel.guild}")
+        else:
+            await message.channel.send("You need to be in a voice channel for me to join.")
+
+    if message.content.startswith('$stop'):
+        if message.author.voice:
+            if message.guild.voice_client:
+                await message.channel.send(f"Leaving vc :(")
+                await message.guild.voice_client.disconnect()
+        else:
+            await message.channel.send(f"youre not even in any vc bruh")
+
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-
-# $Echo: Repeat the message sent by the user.
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('$echo'):
-        await message.channel.send(message.content[5:])
 
 # If a message is edited, log the initial message to the same channel.
 @client.event
@@ -50,26 +54,16 @@ async def on_message_delete(message):
  
 @client.event
 async def on_message(message):
-    if message.author == client.user:
-        return
+    bot_is_author = message.author == client.user
 
-    if message.content.startswith('$play'):
-        if message.author.voice:
-            channel = message.author.voice.channel
-            # Connect the bot to the channel
-            await channel.connect()
-            await message.channel.send(f"Joined {channel.name}!")
-            await message.channel.send(f"In guild {channel.guild}")
-        else:
-            await message.channel.send("You need to be in a voice channel for me to join.")
-
-    if message.content.startswith('$stop'):
-        if message.author.voice:
-            if message.guild.voice_client:
-                await message.channel.send(f"Leaving vc :(")
-                await message.guild.voice_client.disconnect()
-        else:
-            await message.channel.send(f"youre not even in any vc bruh")
+    # $Hello: Respond to the message with 'Hello!'.
+    if message.content.startswith('$hello') and not bot_is_author:
+        await message.channel.send('Hello!')
+    # $Echo: Repeat the message sent by the user.
+    elif message.content.startswith('$echo') and not bot_is_author:
+        await message.channel.send(message.content[5:])
+    else:
+        on_message_voice(message)
 
 if len(argv) != 2:
     print("error: inappropriate amount of arguments")
