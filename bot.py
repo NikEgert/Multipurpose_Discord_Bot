@@ -1,4 +1,5 @@
 import discord
+from sys import argv 
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -70,4 +71,7 @@ async def on_message(message):
         else:
             await message.channel.send(f"youre not even in any vc bruh")
 
-client.run('token here')
+if len(argv) != 2:
+    print("error: inappropriate amount of arguments")
+else:
+    client.run(f'{argv[1]}')
