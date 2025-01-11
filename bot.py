@@ -36,10 +36,11 @@ async def on_message(message):
 async def on_message_edit(before, after):
     if before.author == client.user:
         return
-
-    # Remove backticks to prevent formatting issues. Doesn't account for escaped backticks.
-    stripped_message = before.content.replace("`", "")
-    await before.channel.send(ping_author(before) + " just edited their message! Previous Message: ```"+stripped_message+"```")
+    # Prevent this from firing when discord errorneously registers pins/embeds as an edit.
+    if before.content != after.content:
+        # Remove backticks to prevent formatting issues. Doesn't account for escaped backticks.
+        stripped_message = before.content.replace("`", "")
+        await before.channel.send(ping_author(before) + " just edited their message! Previous Message: ```"+stripped_message+"```")
 
 # If a message gets deleted, log the deleted message to the same channel.
 @client.event
