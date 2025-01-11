@@ -75,4 +75,5 @@ if len(argv) != 2:
     print("error: inappropriate amount of arguments")
 else:
     client.run(f'{argv[1]}')
-    
+
+print("testing jenkins")
