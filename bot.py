@@ -64,7 +64,7 @@ async def on_message(message):
     elif message.content.startswith('$echo') and not bot_is_author:
         await message.channel.send(message.content[5:])
     else:
-        on_message_voice(message)
+        await on_message_voice(message)
 
 if len(argv) != 2:
     print("error: inappropriate amount of arguments")
