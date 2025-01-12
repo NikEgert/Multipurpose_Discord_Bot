@@ -98,7 +98,7 @@ async def on_message(message):
         except:
             await message.channel.send(f"String too long to send ;)\nRolled {accum}!")
     else:
-        on_message_voice(message)
+        await on_message_voice(message)
 
 if len(argv) != 2:
     print("error: inappropriate amount of arguments")
