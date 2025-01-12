@@ -69,13 +69,34 @@ async def on_message(message):
     elif message.content.startswith('$roll') and not bot_is_author:
         match = re.search('[0-9]+', message.content)
         if not match:
-            await message.channel.send('Include a number after $roll!')
+            await message.channel.send("No number input!")
             return
-        roll_num = int(match.group())
-        if roll_num < 1:
-            await message.channel.send('Number has to be more than zero!')
+        sides = int(match.group())
+        match = re.search('d[0-9]+', message.content)
+        #if no 'd' in input, execute non-DND roll
+        if not match:
+            await message.channel.send(f"Rolled {randint(1, sides)}!")
             return
-        await message.channel.send(f"Rolled a {randint(1, roll_num)}!")
+        match = re.search('[0-9]+', match.group())
+        sides = int(match.group())
+        match = re.search('[0-9]+d', message.content)
+        if match:
+            match = re.search('[0-9]+', match.group())
+            roll_num = int(match.group())
+        else:
+            roll_num = 1
+        #execute dnd roll. Roll dice of 'sides' sides, 'roll_num' times
+        accum = 0
+        dice_output = ""
+        for i in range(roll_num):
+            roll = randint(1, sides)
+            accum += roll
+            dice_output += str(roll)
+            dice_output += " "
+        try:
+            await message.channel.send(f"{dice_output}\nRolled {accum}!")
+        except:
+            await message.channel.send(f"String too long to send ;)\nRolled {accum}!")
     else:
         on_message_voice(message)
 
