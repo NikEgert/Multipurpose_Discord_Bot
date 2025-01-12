@@ -1,5 +1,7 @@
 import discord
 from sys import argv 
+from random import randint
+import re
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -63,6 +65,13 @@ async def on_message(message):
     # $Echo: Repeat the message sent by the user.
     elif message.content.startswith('$echo') and not bot_is_author:
         await message.channel.send(message.content[5:])
+    # $Roll: Take a number x as input. Output a random number between 1 and x, inclusive.
+    elif message.content.startswith('$roll') and not bot_is_author:
+        roll_num = re.search('[0-9]+', message.content)
+        if not roll_num or roll_num < 1:
+            await message.channel.send('No positive integer found in message!')
+            return
+        await message.channel.send('Rolled a ' + str(randint(1, roll_num)) + '!')
     else:
         on_message_voice(message)
 
