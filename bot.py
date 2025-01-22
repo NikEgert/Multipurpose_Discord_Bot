@@ -2,6 +2,7 @@ import discord
 from sys import argv 
 from random import randint
 import re
+import asyncio
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -11,6 +12,12 @@ client = discord.Client(intents=intents)
 # Returns the string to ping the author of a message.
 def ping_author(message):
     return "<@"+str(message.author.id)+">"
+
+# TODO: Function to send a message with mentions, without pinging.
+async def send_message_silent_ping(message, mention):
+    # Idea: Regex to replace specific calls of {ping_author()} with ...
+    # Send that, then edit to original message.
+    pass
 
 async def on_message_voice(message):
     if message.author == client.user:
@@ -37,23 +44,43 @@ async def on_message_voice(message):
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-# If a message is edited, log the initial message to the same channel.
+# If a message is edited, log the initial message to the log channel.
 @client.event
 async def on_message_edit(before, after):
     if before.author == client.user:
         return
     # Prevent this from firing when discord errorneously registers pins/embeds as an edit.
-    if before.content != after.content:
-        # Remove backticks to prevent formatting issues. Doesn't account for escaped backticks.
-        stripped_message = before.content.replace("`", "")
-        await before.channel.send(ping_author(before) + " just edited their message! Previous Message: ```"+stripped_message+"```")
+    if before.content == after.content:
+        return
+    # Remove backticks to prevent formatting issues. Doesn't account for escaped backticks.
+    log_channel = client.get_channel(1331540560036761673)
+    stripped_before = before.content.replace("`", "")
+    stripped_after = after.content.replace("`", "")
+    # If the log channel doesn't exist, reply in the same channel and output a warning.
+    if log_channel is None:
+        await before.channel.send(f"Warning: Log Channel Not Found.\n"
+            f"{ping_author(before)} just edited their message! Previous Message: ```{stripped_before}```")
+    # Output edit to log channel. User mention is edited in to avoid pinging them.
+    else:
+        edit_message = await log_channel.send(f"@{before.author.nick} just edited their message!"
+            f"```{stripped_before}``````{stripped_after}```")
+        await edit_message.edit(content=f"{ping_author(before)} just edited their message!"""
+            f"```{stripped_before}``````{stripped_after}```")
 
-# If a message gets deleted, log the deleted message to the same channel.
+# If a message gets deleted, log the deleted message to the log channel.
 @client.event
 async def on_message_delete(message):
     # Remove backticks to prevent formatting issues. Doesn't account for escaped backticks.
+    log_channel = client.get_channel(1331540560036761673)
     stripped_message = message.content.replace("`", "")
-    await message.channel.send(ping_author(message) + " just had a message deleted! Previous Message: ```"+stripped_message+"```")
+    # If the log channel doesn't exist, reply in the same channel and output a warning.
+    if log_channel is None:
+        await message.channel.send(f"Warning: Log Channel Not Found.\n"
+            f"{ping_author(message)} just had a message deleted! Previous Message: ```{stripped_message}```")
+    # Output deletion to log channel. User mention is edited in to avoid pinging them.
+    else:
+        edit_message = await log_channel.send(f"@{message.author.nick} just had a message deleted!```{stripped_message}```")
+        await log_channel.send(f"{ping_author(message)} just had a message deleted!```{stripped_message}```")
  
 @client.event
 async def on_message(message):
@@ -65,6 +92,7 @@ async def on_message(message):
     # $Echo: Repeat the message sent by the user.
     elif message.content.startswith('$echo') and not bot_is_author:
         await message.channel.send(message.content[5:])
+        print(message.content)
     # $Roll: Take a number x as input. Output a random number between 1 and x, inclusive.
     elif message.content.startswith('$roll') and not bot_is_author:
         match = re.search('[0-9]+', message.content)
@@ -97,6 +125,14 @@ async def on_message(message):
             await message.channel.send(f"{dice_output}\nRolled {accum}!")
         except:
             await message.channel.send(f"String too long to send ;)\nRolled {accum}!")
+    elif message.content.startswith('$try') and not bot_is_author:
+        this_message = await message.channel.send("3")
+        await asyncio.sleep(1)
+        await this_message.edit(content="2")
+        await asyncio.sleep(1)
+        await this_message.edit(content="1")
+        await asyncio.sleep(1)
+        await this_message.edit(content="Fire!")
     else:
         await on_message_voice(message)
 
