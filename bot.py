@@ -8,6 +8,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
+# Bot = 1326366953941499954, Test = 1327533449803726930
+bot_ids = {1326366953941499954, 1327533449803726930}
+
 
 # Returns the string to ping the author of a message.
 def ping_author(message):
@@ -43,11 +46,12 @@ async def on_message_voice(message):
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
+    print(f'ID: {client.user.id}')
 
 # If a message is edited, log the initial message to the log channel.
 @client.event
 async def on_message_edit(before, after):
-    if before.author == client.user:
+    if before.author.id in bot_ids:
         return
     # Prevent this from firing when discord errorneously registers pins/embeds as an edit.
     if before.content == after.content:
@@ -77,10 +81,11 @@ async def on_message_delete(message):
     if log_channel is None:
         await message.channel.send(f"Warning: Log Channel Not Found.\n"
             f"{ping_author(message)} just had a message deleted! Previous Message: ```{stripped_message}```")
+    # If the deleted 
     # Output deletion to log channel. User mention is edited in to avoid pinging them.
     else:
         edit_message = await log_channel.send(f"@{message.author.nick} just had a message deleted!```{stripped_message}```")
-        await log_channel.send(f"{ping_author(message)} just had a message deleted!```{stripped_message}```")
+        await edit_message.edit(content=f"{ping_author(message)} just had a message deleted!```{stripped_message}```")
  
 @client.event
 async def on_message(message):
