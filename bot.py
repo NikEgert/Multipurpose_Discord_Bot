@@ -6,7 +6,6 @@ import asyncio
 import datetime
 from datetime import timezone
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 
