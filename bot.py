@@ -3,6 +3,9 @@ from sys import argv
 from random import randint
 import re
 import asyncio
+import datetime
+from datetime import timezone
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -98,6 +101,14 @@ async def on_message(message):
     elif message.content.startswith('$echo') and not bot_is_author:
         await message.channel.send(message.content[5:])
         print(message.content)
+    # $Time: Prints out the current, time, date, and day, in UTC, right now.
+    elif message.content.startswith('$time') and not bot_is_author:
+        dt = datetime.datetime.now(timezone.utc)
+        time = dt.strftime("%I:%M %p").lstrip("0")
+        date = dt.strftime("%d %B, %Y").strip("0")
+        offset = dt.strftime("GMT%z")
+        day = dt.strftime("%A")
+        await message.channel.send(f"# {time}      |      {date} at {offset}.\nToday is a {day}.")
     # $Roll: Take a number x as input. Output a random number between 1 and x, inclusive.
     elif message.content.startswith('$roll') and not bot_is_author:
         match = re.search('[0-9]+', message.content)
