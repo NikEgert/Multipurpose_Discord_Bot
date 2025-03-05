@@ -156,4 +156,4 @@ if len(argv) != 2:
 else:
     client.run(f'{argv[1]}')
 
-print("testing jenkins")
+print("webhook test")
